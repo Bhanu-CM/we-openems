@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Inject, LOCALE_ID } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -12,8 +12,9 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
   templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
 })
 export class ModalComponent extends AbstractFormlyComponent {
+  constructor(@Inject(LOCALE_ID) protected locale: string){ super(); }
 
-  public static generateView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
+  public static generateView(config: EdgeConfig, translate: TranslateService, locale: string): OeFormlyView {
 
     const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component =>
@@ -123,7 +124,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   protected override generateView(config: EdgeConfig): OeFormlyView {
-    return ModalComponent.generateView(config, this.translate);
+    return ModalComponent.generateView(config, this.translate, this.locale);
   }
 
 }

@@ -63,7 +63,7 @@ export class OeFormlyViewTester {
         // Read or generate name
         let name: string;
         if (typeof (field.name) === "function") {
-          name = field.name(tmp.rawValue);
+          name = field.name(tmp.rawValue, "de");
         } else {
           name = field.name;
         }
@@ -174,7 +174,7 @@ export class OeFormlyViewTester {
 
     // Apply converter
     const value: string = field.converter
-      ? field.converter(rawValue)
+      ? field.converter(rawValue, "de")
       : rawValue === null ? null : "" + rawValue;
 
     return {
@@ -238,7 +238,7 @@ export class OeChartTester {
     });
 
     // Fill Data
-    const configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
+    const configuration = AbstractHistoryChart.fillChart(chartType, chartData, "de", channelData, channels.energyChannelWithValues);
     const data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
     const labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
     const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config, configuration.datasets, xAxisScalingType, configuration.labels);
@@ -304,7 +304,7 @@ export class OeChartTester {
 
     displayValues.forEach(displayValue => {
       const yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
-      const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == "function" ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
+      const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, "de", typeof displayValue.nameSuffix == "function" ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
@@ -395,7 +395,7 @@ export namespace OeFormlyViewTester {
 
     if (typeof field.name == "object") {
       rawValue = typeof field.name == "object" ? (field.name.channel.toString() in context ? context[field.name.channel.toString()] : null) : null;
-      value = field.name.converter(rawValue);
+      value = field.name.converter(rawValue, "de");
     }
 
     if (typeof (field.name) === "string") {

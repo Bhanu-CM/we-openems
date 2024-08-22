@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, Inject, Input, OnChanges, OnDestroy, LOCALE_ID } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -49,6 +49,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(Service) protected service: Service,
     @Inject(ModalController) protected modalCtrl: ModalController,
     @Inject(DataService) private dataService: DataService,
+    @Inject(LOCALE_ID) protected locale: string,
   ) { }
 
   @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
