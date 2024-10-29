@@ -53,8 +53,8 @@ export type ImageIcon = {
 };
 
 export class Widget {
-    public name: WidgetNature | WidgetFactory | string;
-    public componentId: string;
+    public name: WidgetNature | WidgetFactory | string = "";
+    public componentId: string = "";
 }
 
 export class Widgets {
