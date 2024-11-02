@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit, Inject, LOCALE_ID } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -28,7 +28,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         protected override translate: TranslateService,
         private route: ActivatedRoute,
         private websocket: Websocket,
-        @Inject(LOCALE_ID) protected locale: string,
     ) {
         super("powerSoc-chart", service, translate);
     }
@@ -52,7 +51,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     protected setLabel() {
         this.options = this.createDefaultChartOptions();
         const translate = this.translate;
-        const locale = this.locale;
         this.options.plugins = {
             tooltip: {
                 callbacks: {
@@ -61,7 +59,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                         const label = item.dataset.label;
                         const value = item.dataset.data[item.dataIndex];
 
-                        return TimeOfUseTariffUtils.getLabel(value, label, translate, locale);
+                        return TimeOfUseTariffUtils.getLabel(value, label, translate);
                     },
                 },
             },
@@ -206,10 +204,9 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     private applyControllerSpecificOptions() {
         const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
         const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-        const locale = this.service.translate.currentLang;
 
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
 
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
 

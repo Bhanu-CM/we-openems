@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { formatNumber } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy, OnInit, LOCALE_ID, Inject } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language"
 
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
@@ -23,7 +24,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
-        @Inject(LOCALE_ID) private locale: string,
     ) {
         super("storage-total-chart", service, translate);
     }
@@ -246,7 +246,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
-        const locale = this.locale;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
 
         options.scales[ChartAxis.LEFT].min = null;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {

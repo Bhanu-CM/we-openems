@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, Input, OnDestroy, OnInit, Inject, LOCALE_ID } from "@angular/core";
+import { ChangeDetectorRef, Directive, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -72,7 +72,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     protected translate: TranslateService,
     protected route: ActivatedRoute,
     protected logger: Logger,
-    @Inject(LOCALE_ID) protected locale: string,
   ) {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
@@ -85,8 +84,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param energyPeriodResponse the response of a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest} or {@link QueryHistoricTimeseriesDataResponse}
    * @param energyResponse the response of a {@link QueryHistoricTimeseriesEnergyResponse}
    */
-  public static fillChart(chartType: "line" | "bar", chartObject: HistoryUtils.ChartData, locale: string,
-    energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
+  public static fillChart(chartType: "line" | "bar", chartObject: HistoryUtils.ChartData, energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
     energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
     if (Utils.isDataEmpty(energyPeriodResponse)) {
       return {
@@ -132,6 +130,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     const datasets: Chart.ChartDataset[] = [];
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data, labels);
     const legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean; }[] = [];
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     displayValues.forEach((displayValue, index) => {
       let nameSuffix = null;
 
@@ -144,7 +143,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
       // Filter existing values
       if (displayValue) {
-        const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, locale, nameSuffix);
+        const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, nameSuffix);
         const data: number[] | null = displayValue.converter();
 
         if (data === null || data === undefined) {
@@ -354,19 +353,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     translate: TranslateService,
     legendOptions: { label: string, strokeThroughHidingStyle: boolean; }[],
     channelData: { data: { [name: string]: number[]; }; },
-    locale: string,
     config: EdgeConfig,
     datasets: Chart.ChartDataset[],
     chartOptionsType: XAxisType,
     labels: (Date | string)[],
   ): Chart.ChartOptions {
-
     let tooltipsLabel: string | null = null;
     let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(AbstractHistoryChart.getDefaultOptions(chartOptionsType, service, labels)));
     const displayValues: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = chartObject.output(channelData.data);
 
     chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, datasets, true);
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, datasets, true);
     });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -397,7 +394,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         tooltipsLabel = AbstractHistoryChart.getToolTipsAfterTitleLabel(unit, chartType, value, translate);
       }
 
-      return label.split(":")[0] + ": " + AbstractHistoryChart.getToolTipsSuffix(tooltipsLabel, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, locale, translate, locale, config);
+      return label.split(":")[0] + ": " + AbstractHistoryChart.getToolTipsSuffix(tooltipsLabel, value, displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber, unit, chartType, translate, config);
     };
 
     options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
@@ -438,6 +435,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     };
 
     options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
+      const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
 
       if (items?.length === 0) {
         return null;
@@ -476,7 +474,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       function rebuildScales(chart: Chart.Chart) {
         let options = chart.options;
         chartObject.yAxes.forEach((element) => {
-          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale, _dataSets, true);
+          options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, _dataSets, true);
         });
       }
 
@@ -526,8 +524,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param locale the current locale
    * @returns the chart options {@link Chart.ChartOptions}
    */
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", locale: string, datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
-
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean): Chart.ChartOptions {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType);
     switch (element.unit) {
       case YAxisType.RELAY:
@@ -624,7 +622,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param suffix the suffix, a number that will be added to the baseName
    * @returns a string, that is either the baseName, if no suffix is provided, or a baseName with a formatted number
    */
-  public static getTooltipsLabelName(baseName: string, unit: YAxisType, locale: string, suffix?: number | string): string {
+  public static getTooltipsLabelName(baseName: string, unit: YAxisType, suffix?: number | string): string {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (suffix != null) {
       if (typeof suffix === "string") {
         return baseName + " " + suffix;
@@ -653,7 +652,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * @param title the YAxisType
    * @returns the tooltips suffix
    */
-  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", language: string, translate: TranslateService, locale: string, config: EdgeConfig): string {
+  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", translate: TranslateService, config: EdgeConfig): string {
+    const language: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     let tooltipsLabel: string | null = null;
     switch (title) {
       case YAxisType.RELAY: {
@@ -892,7 +893,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         // TODO after chartjs migration, look for config
         energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
 
-        const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, this.locale, energyPeriodResponse, energyResponse);
+        const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
         this.datasets = displayValues.datasets;
         this.legendOptions = displayValues.legendOptions;
         this.labels = displayValues.labels;
@@ -911,7 +912,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
           this.chartType = "line";
           this.chartObject = this.getChartData();
-          const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, this.locale, dataResponse, energyResponse);
+          const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
           this.datasets = displayValues.datasets;
           this.legendOptions = displayValues.legendOptions;
           this.labels = displayValues.labels;
@@ -1075,7 +1076,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
    * Sets the Labels of the Chart
    */
   protected setChartLabel() {
-    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, this.locale, this.config, this.datasets, this.xAxisScalingType, this.labels);
+    this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, this.config, this.datasets, this.xAxisScalingType, this.labels);
     this.loading = false;
     this.stopSpinner();
   }

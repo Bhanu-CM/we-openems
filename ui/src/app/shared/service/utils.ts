@@ -8,6 +8,7 @@ import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Currency, EdgeConfig } from "../shared";
+import { Language } from "src/app/shared/type/language"
 
 export class Utils {
 
@@ -248,10 +249,10 @@ export class Utils {
    * Converts a value in Watt [W] to KiloWatt [kW].
    *
    * @param value the value from passed value in html
-   * @param locale locale string
    * @returns converted value
    */
-  public static CONVERT_TO_WATT = (value: number | null, locale: string): string => {
+  public static CONVERT_TO_WATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     } else if (value >= 0) {
@@ -265,10 +266,10 @@ export class Utils {
    * Converts a value in Watt [W] to KiloWatt [kW].
    *
    * @param value the value from passed value in html
-   * @param locale locale string
    * @returns converted value
    */
-  public static CONVERT_WATT_TO_KILOWATT = (value: number | null, locale: string): string => {
+  public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     }
@@ -305,10 +306,10 @@ export class Utils {
    * Converts a value to WattHours [Wh]
    *
    * @param value the value from passed value in html
-   * @param locale locale string
    * @returns converted value
    */
-  public static CONVERT_TO_WATTHOURS = (value: number, locale: string): string => {
+  public static CONVERT_TO_WATTHOURS = (value: number): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return formatNumber(value, locale, "1.0-1") + " Wh";
   };
 
@@ -316,10 +317,10 @@ export class Utils {
    * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
    *
    * @param value the value from passed value in html
-   * @param locale locale string
    * @returns converted value
    */
-  public static CONVERT_TO_KILO_WATTHOURS = (value: number, locale: string): string => {
+  public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
   };
 
@@ -396,10 +397,10 @@ export class Utils {
    *
    * @param decimal number of decimals after fraction
    * @param label label to be displayed along with price
-   * @param locale locale string
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     return (value: number | null | undefined): string =>
       (value == null ? "-" : formatNumber(value / 10, "de", "1.0-" + decimal)) + " " + label;
   };
@@ -860,11 +861,11 @@ export namespace TimeOfUseTariffUtils {
    * @param value The numeric value to be formatted.
    * @param label The label type to determine the formatting.
    * @param translate The translation service for translating labels.
-   * @param locale locale string
    * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
    * @returns The formatted label, or exits if the value is not valid.
    */
-  export function getLabel(value: number, label: string, translate: TranslateService, locale: string, currencyLabel?: Currency.Label): string {
+  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
+    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
     // Error handling: Return undefined if value is not valid
     if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
       return;
