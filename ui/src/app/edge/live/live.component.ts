@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
+import { NgxMasonryComponent, NgxMasonryOptions } from "ngx-masonry";
 import { Subject } from "rxjs";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } from "src/app/shared/shared";
@@ -11,10 +12,20 @@ import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket, Widgets } 
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
+  @ViewChild(NgxMasonryComponent)
+  private masonry: NgxMasonryComponent;
+
   public edge: Edge | null = null;
   public config: EdgeConfig | null = null;
   public widgets: Widgets | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
+  protected masonryOptions: NgxMasonryOptions = {
+    itemSelector: ".masonry-item",
+    columnWidth: ".masonry-sizer",
+    gutter: 0,
+    fitWidth: false,
+    percentPosition: false,
+  };
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
@@ -33,6 +44,9 @@ export class LiveComponent implements OnInit, OnDestroy {
     this.service.getConfig().then(config => {
       this.config = config;
       this.widgets = config.widgets;
+      setTimeout(() => {
+        this.updateMasonryLayout();
+      }, 100);
     });
   }
 
@@ -41,5 +55,12 @@ export class LiveComponent implements OnInit, OnDestroy {
     this.stopOnDestroy.complete();
   }
 
-  protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
+  protected updateMasonryLayout() {
+    this.masonry.reloadItems();
+    this.masonry.layout();
+  }
+
+  protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {
+    this.dataService.refresh(ev);
+  };
 }

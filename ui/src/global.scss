@@ -430,3 +430,26 @@ ion-avatar.iconify.icon-large {
     max-height: 32px;
     max-width: 32px;
 }
+
+.masonry-grid {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.masonry-sizer {
+    width: 50%;
+}
+
+.masonry-item {
+    width: 50%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width: 992px) {
+    .masonry-item {
+        width: 100%;
+    }
+}
