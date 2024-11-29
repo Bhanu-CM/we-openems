@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
+import { Language } from "src/app/shared/type/language"
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
@@ -208,6 +209,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
     private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
         const translate = this.translate;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
 
         options.scales[ChartAxis.LEFT].min = null;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
@@ -227,7 +229,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                     label = translate.instant("General.DISCHARGE");
                 }
             }
-            return label + ": " + formatNumber(value, "de", "1.0-2") + " kW";
+            return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
         };
 
         // Data doesnt have all datapoints for period

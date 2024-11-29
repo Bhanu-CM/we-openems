@@ -308,7 +308,7 @@ export class OeChartTester {
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
     });
 
-    const options = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale, config, datasets, xAxisType, labels);
+    const options = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, config, datasets, xAxisType, labels);
 
     chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
       // Remove custom scale calculations from unittest, seperate unittest existing
