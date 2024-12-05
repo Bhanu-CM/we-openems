@@ -176,18 +176,20 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								this.ignoreZeroAndScaleFactorMinus2), //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								this.ignoreZeroAndScaleFactor1)),
+								this.ignoreZeroAndScaleFactor1)));
 
-				new FC3ReadRegistersTask(47456, Priority.LOW, //
-						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
-				),
+		// Add the FC6WriteRegisterTask and the FC3ReadRegistersTask only for commercial
+		// meter
+		if (this.config.goodWeMeterCategory() == GoodWeGridMeterCategory.COMMERCIAL_METER) {
+			protocol.addTask(new FC3ReadRegistersTask(47456, Priority.LOW,
+					m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+			));
+			protocol.addTask(new FC6WriteRegisterTask(47456,
+					m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
+			));
+		}
 
-				// Cannot be written for GoodWe Gen2
-				new FC6WriteRegisterTask(47456,
-						m(GoodWeGridMeter.ChannelId.EXTERNAL_METER_RATIO, new UnsignedWordElement(47456)) //
-				));
-
-		// Handles different DSP versions
+		// Handle different DSP versions
 		readElementOnce(FC3, protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(35016))
 				.thenAccept(dspVersion -> {
 					if (dspVersion >= 4 || dspVersion == 0) {
