@@ -38,7 +38,7 @@
     "classlist.js": "^1.1.20150312",
     "compare-versions": "^6.1.1",
     "d3": "^7.9.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.1.0",
     "file-saver-es": "^2.0.5",
     "ng2-charts": "4.1.1",
     "ngx-cookie-service": "18.0.0",
